@@ -1,0 +1,25 @@
+/******************************************************************************************  
+* Retrieve player's current leaderboard score, increment it by one, and save it back      *
+* to the leaderboardClient's leaderboard.                                                 *
+* If the score is not > 0, it is a new player, and 1 will be posted to the leaderboard.   *
+*******************************************************************************************/
+private void incrementLeaderboard(final LeaderboardsClient leaderboardsClient, final String leaderboardId) {
+        //Load current player score for a given leaderboardsClient and leaderboard ID
+        leaderboardsClient.loadCurrentPlayerLeaderboardScore(
+                leaderboardId,
+                LeaderboardVariant.TIME_SPAN_ALL_TIME,
+                LeaderboardVariant.COLLECTION_PUBLIC
+        ).addOnSuccessListener(this, new OnSuccessListener<AnnotatedData<LeaderboardScore>>(){
+            @Override
+            public void onSuccess(AnnotatedData<LeaderboardScore> leaderboardScoreAnnotatedData) {
+                long score = 0;
+                Log.v("onSuccess","onSuccess");
+                if (leaderboardScoreAnnotatedData.get().getRawScore() > 0)
+                {
+                    score = leaderboardScoreAnnotatedData.get().getRawScore();
+                    Log.v("Your score is",Long.toString(score));
+                }
+                leaderboardsClient.submitScore( leaderboardId, ++score);
+            }
+        });
+    }
