@@ -1,10 +1,11 @@
 /******************************************************************************************  
 * Retrieve player's current leaderboard score, increment it by one, and save it back      *
 * to the leaderboardClient's leaderboard.                                                 *
-* If the score is not > 0, it is a new player, and 1 will be posted to the leaderboard.   *
+* Note that if leaderboardScoreAnnotatedData.get(), we assume it's the first score posted *
+* by this player and simply post "1" to the Leaderboard.                                  *
 *******************************************************************************************/
-private void incrementLeaderboard(final LeaderboardsClient leaderboardsClient, final String leaderboardId) {
-        //Load current player score for a given leaderboardsClient and leaderboard ID
+    private void incrementLeaderboard(final LeaderboardsClient leaderboardsClient, final String leaderboardId) {
+
         leaderboardsClient.loadCurrentPlayerLeaderboardScore(
                 leaderboardId,
                 LeaderboardVariant.TIME_SPAN_ALL_TIME,
@@ -12,14 +13,15 @@ private void incrementLeaderboard(final LeaderboardsClient leaderboardsClient, f
         ).addOnSuccessListener(this, new OnSuccessListener<AnnotatedData<LeaderboardScore>>(){
             @Override
             public void onSuccess(AnnotatedData<LeaderboardScore> leaderboardScoreAnnotatedData) {
-                long score = 0;
                 Log.v("onSuccess","onSuccess");
-                if (leaderboardScoreAnnotatedData.get().getRawScore() > 0)
-                {
-                    score = leaderboardScoreAnnotatedData.get().getRawScore();
-                    Log.v("Your score is",Long.toString(score));
+                if (leaderboardScoreAnnotatedData != null) {
+                    long score = 0;
+                    if (leaderboardScoreAnnotatedData.get() != null) {
+                        score = leaderboardScoreAnnotatedData.get().getRawScore();
+                        Log.v("Your score is", Long.toString(score));
+                    }
+                    leaderboardsClient.submitScore(leaderboardId, ++score);
                 }
-                leaderboardsClient.submitScore( leaderboardId, ++score);
             }
         });
     }
